@@ -1,0 +1,11 @@
+[default]
+SECRET_KEY = 'https://www.youtube.com/watch?v=0mkW-2YKIf8'
+SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://dev:senhasecreta@127.0.0.1:3306/dev_db"
+TITLE = 'Gestor Phishing'
+
+EXTENSOES = [
+    "ext.config",
+    "ext.database",
+    "ext.commands",
+    "ext.admin",
+]
