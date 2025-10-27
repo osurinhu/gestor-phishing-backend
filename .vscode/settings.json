@@ -1,0 +1,5 @@
+{
+    "python-envs.defaultEnvManager": "/workspaces/gestor-phishing-backend/venv/bin:python",
+    "python-envs.pythonProjects": [],
+    "workbench.colorTheme": "Tokyo Night"
+}
