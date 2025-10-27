@@ -1,82 +1,68 @@
 from datetime import datetime, date, time
 from ext.database import db
-from sqlalchemy import func
 from sqlalchemy import BigInteger, ForeignKey, Text, String, SmallInteger
-from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import Optional, List
-from sqlalchemy_serializer import SerializerMixin
 
-class User(db.Model, SerializerMixin):
+class User(db.Model):
     __tablename__ = 'user'
 
     id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
     name: Mapped[str] = mapped_column(String(25), unique=True)
     password: Mapped[str] = mapped_column(String(255))
     is_admin: Mapped[bool] = mapped_column(default=False)
-    # Control
-    created_at: Mapped[Optional[datetime]] = mapped_column(default=func.now())
-    last_update: Mapped[Optional[datetime]] = mapped_column(default=func.now(), onupdate=func.now())
+    deleted: Mapped[bool] = mapped_column(default=False)
+
     # Relationships
     created_group: Mapped[List['Group']] = relationship(back_populates='creator')
     created_target: Mapped[List['Target']] = relationship(back_populates='creator')
     created_template: Mapped[List['Template']] = relationship(back_populates='creator')
     created_campaign: Mapped[List['Campaign']] = relationship(back_populates='creator')
 
-class Group(db.Model, SerializerMixin):
+class Group(db.Model):
     __tablename__ = 'group'
 
     id: Mapped[int] = mapped_column(primary_key=True)
     creator_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('user.id'))
     name: Mapped[str] = mapped_column(String(25))
     description: Mapped[Optional[str]] = mapped_column(String(50))
-    # Control
-    created_at: Mapped[Optional[datetime]] = mapped_column(server_default=func.now())
-    last_update: Mapped[Optional[datetime]] = mapped_column(default=func.now(), onupdate=func.now())
+    deleted: Mapped[bool] = mapped_column(default=False)
+
     # Relationships
     creator: Mapped['User'] = relationship(back_populates='created_group')
-    group_member: Mapped[List['Target']] = relationship(secondary='group_target', back_populates='in_group')
+    group_member: Mapped[List['Target']] = relationship(back_populates='in_group')
     group_campaign: Mapped[List['Campaign']] = relationship(back_populates='group')
 
-class Target(db.Model, SerializerMixin):
+class Target(db.Model):
     __tablename__ = 'target'
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey('group.id'))
     creator_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('user.id'))
     name: Mapped[str] = mapped_column(String(50))
     email: Mapped[str] = mapped_column(String(255))
-    # Control
-    created_at: Mapped[Optional[datetime]] = mapped_column(server_default=func.now())
-    last_update: Mapped[Optional[datetime]] = mapped_column(default=func.now(), onupdate=func.now())
+    deleted: Mapped[bool] = mapped_column(default=False)
+
     # Relationships
     creator: Mapped['User'] = relationship(back_populates='created_target')
-    in_group: Mapped[List['Group']] = relationship(secondary='group_target', back_populates='group_member')
-    email_received: Mapped['EmailSent'] = relationship(back_populates='target')
+    in_group: Mapped['Group'] = relationship(back_populates='group_member')
+    email_received: Mapped[List['EmailSent']] = relationship(back_populates='target')
 
-class GroupTarget(db.Model, SerializerMixin):
-    __tablename__ = 'group_target'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    group_id: Mapped[int] = mapped_column(ForeignKey('group.id'))
-    target_id: Mapped[int] = mapped_column(ForeignKey('target.id'))
-    # Control
-    created_at: Mapped[Optional[datetime]] = mapped_column(server_default=func.now())
-    last_update: Mapped[Optional[datetime]] = mapped_column(default=func.now(), onupdate=func.now())
-
-class Template(db.Model, SerializerMixin):
+class Template(db.Model):
     __tablename__ = 'template'
 
     id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
     creator_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('user.id'))
     description: Mapped[Optional[str]] = mapped_column(String(50))
     code: Mapped[str] = mapped_column(Text)
-    # Control
-    created_at: Mapped[Optional[datetime]] = mapped_column(server_default=func.now())
-    last_update: Mapped[Optional[datetime]] = mapped_column(default=func.now(), onupdate=func.now())
+    deleted: Mapped[bool] = mapped_column(default=False)
+
     # Relationship
     creator: Mapped['User'] = relationship(back_populates='created_template')
     template_campaign: Mapped[List['Campaign']] = relationship(back_populates='template')
 
-class Campaign(db.Model, SerializerMixin):
+class Campaign(db.Model):
     __tablename__ = 'campaign'
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -91,16 +77,15 @@ class Campaign(db.Model, SerializerMixin):
     subject_text: Mapped[str] = mapped_column(String(50))
     title_text: Mapped[str] = mapped_column(String(50))
     body_text: Mapped[str] = mapped_column(String(200))
-    # Control
-    created_at: Mapped[Optional[datetime]] = mapped_column(server_default=func.now())
-    last_update: Mapped[Optional[datetime]] = mapped_column(default=func.now(), onupdate=func.now())
+    deleted: Mapped[bool] = mapped_column(default=False)
+
     # Relationship
     creator: Mapped['User'] = relationship(back_populates='created_campaign')
     group: Mapped['Group'] = relationship(back_populates='group_campaign')
     template: Mapped['Template'] = relationship(back_populates='template_campaign')
     email_sent: Mapped[List['EmailSent']] = relationship(back_populates='from_campaing')
 
-class EmailSent(db.Model, SerializerMixin):
+class EmailSent(db.Model):
     __tablename__ = 'email_sent'
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
@@ -108,9 +93,7 @@ class EmailSent(db.Model, SerializerMixin):
     campaing_id: Mapped[int] = mapped_column(ForeignKey('campaign.id'))
     interacted: Mapped[bool] = mapped_column(default=False)
     interaction_date: Mapped[Optional[datetime]] = mapped_column()
-    # Control
-    created_at: Mapped[Optional[datetime]] = mapped_column(server_default=func.now())
-    last_update: Mapped[Optional[datetime]] = mapped_column(default=func.now(), onupdate=func.now())
+
     # Relationship
     target: Mapped['Target'] = relationship(back_populates='email_received')
     from_campaing: Mapped['Campaign'] = relationship(back_populates='email_sent')

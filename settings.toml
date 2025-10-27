@@ -1,11 +1,26 @@
 [default]
-SECRET_KEY = 'https://www.youtube.com/watch?v=0mkW-2YKIf8'
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://dev:senhasecreta@127.0.0.1:3306/dev_db"
 TITLE = 'Gestor Phishing'
+SECRET_KEY = 'https://www.youtube.com/watch?v=0mkW-2YKIf8'
+
+SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://dev:senhasecreta@127.0.0.1:3306/dev_db"
+
+BABEL_DEFAULT_LOCALE = 'pt'
+
+JWT_SECRET_KEY = 'https://www.youtube.com/watch?v=jUcMyAzt2Ck'
+JWT_ACCESS_TOKEN_EXPIRES = 172800
 
 EXTENSOES = [
     "ext.config",
     "ext.database",
     "ext.commands",
+    "ext.auth",
     "ext.admin",
+    "ext.translation",
+    
+    "blueprint.restapi.v1",
+]
+
+APIV1 = [
+    "blueprint.restapi.v1.auth",
+    "blueprint.restapi.v1.group",
 ]
