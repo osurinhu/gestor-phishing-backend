@@ -14,7 +14,7 @@ class UserService(BaseService):
 
     def auth_user(self, name:str, password:str)-> str:
         try:
-            user = self.repo.get_by_filter(name=name, query_limit=1)[0]
+            user = self.repo.get_by_filter(name=name, limit=1)[0]
         except:
             return None
         if not check_password_hash(user.password, password):

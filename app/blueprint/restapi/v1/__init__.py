@@ -1,7 +1,7 @@
 from ext.config import load_routes
 
 from flask import Blueprint
-from flask_restx import Api
+from flask_restx import Api, reqparse
 
 from argparse import ArgumentTypeError
 from email_validator import validate_email, EmailNotValidError
@@ -29,24 +29,30 @@ class StrLen(object):
         if (len(value) < self.min):
             raise ArgumentTypeError(f'Argument must have a minimum lenght of {self.min} characters')
         return value
-    
 
 def target(value):
-    fields = {'target_name', 'target_email'}
+    fields = {'name', 'email'}
     # Checks if value is a json
     try:
         value = json.loads(value)
     except:
-        raise ArgumentTypeError("Target must be formated as {'target_name':'John Doe', 'target_email':'doejohn@mail.com'}")
+        raise ArgumentTypeError("Target must be formated as {'name':'John Doe', 'email':'doejohn@mail.com'}")
     # Checks if value have the necessary fields
     if not fields.issubset(value):
-        raise  ArgumentTypeError("Target must be formated as {'target_name':'John Doe', 'target_email':'doejohn@mail.com'}")
+        raise  ArgumentTypeError("Target must be formated as {'name':'John Doe', 'email':'doejohn@mail.com'}")
     # Checks if the email is valid
     try:
-        value['target_email'] = validate_email(value['target_email']).normalized
+        value['email'] = validate_email(value['email']).normalized
     except:
-        raise ArgumentTypeError(f'Email {value['target_email']} is invalid')
+        raise ArgumentTypeError(f'Email {value['email']} is invalid')
     return value
+
+target.__schema__ = {'type':'json', 'format':"{'name':'John', 'email':'doejohn@mail.com'}"}
+
+page_args = reqparse.RequestParser()
+page_args.add_argument("page", type=int, help="The current page of the query", location='args', required=False, default=1)
+page_args.add_argument("per_page", type=int, help="The max number of elements per page", location='args', required=False, default=20)
+
 
 def init_app(app):
 	load_routes(app, api)

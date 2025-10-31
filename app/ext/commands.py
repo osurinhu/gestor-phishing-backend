@@ -8,16 +8,16 @@ def create_db():
     db.create_all()
 
 def drop_db():
-    """Cleans database"""
+    """Drops database"""
     db.drop_all()
 
 def add_admin():
     service = UserService()
-    foo = service.get_by_filter(name='admin')
-    if foo:
+    admin = service.get_by_filter(name='admin')
+    if admin:
         print("Admin already exists!")
         return
-    service.add_new_model(name='admin', password='teste', is_admin=True)
+    service.create(name='admin', password='teste', is_admin=True)
     print('Admin added!')
 '''
 def populate_db():

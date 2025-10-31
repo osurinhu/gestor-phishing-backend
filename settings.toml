@@ -6,6 +6,8 @@ SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://dev:senhasecreta@127.0.0.1:330
 
 BABEL_DEFAULT_LOCALE = 'pt'
 
+RESTX_ERROR_404_HELP = 0
+
 JWT_SECRET_KEY = 'https://www.youtube.com/watch?v=jUcMyAzt2Ck'
 JWT_ACCESS_TOKEN_EXPIRES = 172800
 
