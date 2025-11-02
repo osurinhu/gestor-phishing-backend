@@ -54,6 +54,7 @@ class Template(db.Model):
 
     id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
     creator_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('user.id'))
+    name: Mapped[str] = mapped_column(String(25))
     description: Mapped[Optional[str]] = mapped_column(String(50))
     code: Mapped[str] = mapped_column(Text)
     deleted: Mapped[bool] = mapped_column(default=False)
@@ -70,7 +71,8 @@ class Campaign(db.Model):
     group_id: Mapped[int] = mapped_column(ForeignKey('group.id'))
     template_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('template.id'))
     name: Mapped[str] = mapped_column(String(25))
-    enabled: Mapped[bool] = mapped_column(default=True)
+    description: Mapped[Optional[str]] = mapped_column(String(50))
+    active: Mapped[bool] = mapped_column(default=True)
     start_date: Mapped[date] = mapped_column()
     end_date: Mapped[date] = mapped_column()
     send_time: Mapped[time] = mapped_column()

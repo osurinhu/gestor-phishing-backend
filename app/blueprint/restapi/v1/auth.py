@@ -18,7 +18,7 @@ class Auth(Resource):
     
     @ns.expect(auth_args, validate=True)
     def post(self):
-        args = auth_args.parse_args()
+        args = auth_args.parse_args(strict=True)
 
         service = UserService()
         jwt_token = service.auth_user(name=args.get('name'), password=args.get('password'));

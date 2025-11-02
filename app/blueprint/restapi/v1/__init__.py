@@ -13,7 +13,8 @@ api = Api(
     blueprint,
     title='API',
     version='V1',
-    description='First version of the api')
+    description='First version of the api',
+    validate=True)
 
 class StrLen(object):
     def __init__(self, lenght:int, min:int=5):
@@ -30,6 +31,14 @@ class StrLen(object):
             raise ArgumentTypeError(f'Argument must have a minimum lenght of {self.min} characters')
         return value
 
+
+def email(value):
+    try:
+        value = validate_email(value).normalized
+    except:
+        raise ArgumentTypeError(f'Email {value} is invalid')
+    return value
+
 def target(value):
     fields = {'name', 'email'}
     # Checks if value is a json
@@ -41,10 +50,11 @@ def target(value):
     if not fields.issubset(value):
         raise  ArgumentTypeError("Target must be formated as {'name':'John Doe', 'email':'doejohn@mail.com'}")
     # Checks if the email is valid
-    try:
-        value['email'] = validate_email(value['email']).normalized
-    except:
-        raise ArgumentTypeError(f'Email {value['email']} is invalid')
+
+    value['name'] = StrLen(25).__call__(value['name'])
+
+    value['email'] = email(value['email'])
+
     return value
 
 target.__schema__ = {'type':'json', 'format':"{'name':'John', 'email':'doejohn@mail.com'}"}

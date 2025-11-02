@@ -10,7 +10,7 @@ from service.user_service import UserService
 from flask_admin.contrib.sqla import ModelView
 from werkzeug.security import generate_password_hash
 
-from domain.models import User
+from domain.models import User, Campaign
 
 AdminIndexView._handle_view = admin_required(AdminIndexView._handle_view)
 sqla.ModelView._handle_view = admin_required(sqla.ModelView._handle_view)
@@ -31,7 +31,7 @@ class UserView(CustomModelView):
 
     def delete_model(self, model):
         service = UserService()
-        service.delete_model(model.id)
+        service.delete(model.id)
 
 admin = Admin()
 
@@ -39,4 +39,5 @@ def init_app(app):
 
     admin.name = app.config.TITLE
     admin.add_views(UserView(User, db.session))
+    admin.add_views(UserView(Campaign, db.session))
     admin.init_app(app)

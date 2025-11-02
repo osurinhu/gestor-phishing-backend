@@ -9,14 +9,11 @@ class BaseRepo:
     def __init__(self, model:BaseModel):
         self.model = model
 
-    def add(self, model:BaseModel, commit:bool=True)-> BaseModel:
+    def add(self, model:BaseModel)-> BaseModel:
         """Add a model object to the database"""
         try:
             db.session.add(model)
-            if commit:
-                db.session.commit()
-            else:
-                db.session.flush([model])
+            db.session.flush([model])
             db.session.refresh(model)
             return model
         except SQLAlchemyError as error:
@@ -36,21 +33,22 @@ class BaseRepo:
         except SQLAlchemyError as error:
             return error
     
-    def get_page_by_filter(self, page:int=1, per_page:int=20, **kwargs)-> Pagination:
+    def get_page_by_filter(self, exact:dict, like:dict, page:int=1, per_page:int=20)-> Pagination:
         try:
-            stmt = db.select(self.model).filter_by(**kwargs)
+            stmt = db.select(self.model).filter_by(**exact)
+            for key, value in like.items():
+                stmt = stmt.where(getattr(self.model, key).like("%"+value+"%"))
             pages = db.paginate(stmt, page=page, per_page=per_page, max_per_page=100)
             return pages
         except SQLAlchemyError as error:
             return error
     
-    def update(self, model:BaseModel, commit:bool=True, **kwargs) -> BaseModel:
+    def update(self, model:BaseModel, **kwargs) -> BaseModel:
         try:
             for key, value in kwargs.items(): 
                 if value:
                     setattr(model,key,value)
-            if commit:
-                db.session.commit()
+            db.session.flush([model])
             db.session.refresh(model)
             return model
         except SQLAlchemyError as error:
@@ -58,16 +56,7 @@ class BaseRepo:
             raise error
     
     def delete(self, model:BaseModel)-> BaseModel:
-        return self.update(model=model, data={'deleted':True})
-
-    def hard_delete(self, model: BaseModel)-> BaseModel:
-        try:
-            db.session.delete(model)
-            db.session.commit()
-            return model
-        except SQLAlchemyError as error:
-            db.session.rollback()
-            raise error
+        return self.update(model=model, deleted=True)
         
     def commit(self):
         db.session.commit()

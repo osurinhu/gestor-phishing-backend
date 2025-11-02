@@ -8,9 +8,8 @@ class UserService(BaseService):
         super().__init__(repo=UserRepo(),
                          safe_fields=('id','name','is_admin'))
 
-    def create_model(self, name:str, password:str, is_admin:bool=False):
-        password = generate_password_hash(password)
-        return super().create_model(name=name, password=password, is_admin=is_admin)
+    def before_create(self, kwargs):
+        kwargs['password'] = generate_password_hash(kwargs['password'])
 
     def auth_user(self, name:str, password:str)-> str:
         try:

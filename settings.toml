@@ -25,4 +25,6 @@ EXTENSOES = [
 APIV1 = [
     "blueprint.restapi.v1.auth",
     "blueprint.restapi.v1.group",
+    "blueprint.restapi.v1.target",
+    "blueprint.restapi.v1.template",
 ]

@@ -19,6 +19,7 @@ def add_admin():
         return
     service.create(name='admin', password='teste', is_admin=True)
     print('Admin added!')
+    
 '''
 def populate_db():
 '''
