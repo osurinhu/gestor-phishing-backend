@@ -42,6 +42,16 @@ class Template(Resource):
 @ns.route('/<int:id>')
 class TemplateId(Resource):
     @jwt_required()
+    def get(self, id):
+        try:
+            group = TemplateService(current_user.id).get_by_id(id=id)
+            if not group:
+                return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
+            return group
+        except PermissionError:
+            return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
+
+    @jwt_required()
     @ns.expect(template_update_args)
     def patch(self, id):
         args = template_update_args.parse_args(strict=True)
