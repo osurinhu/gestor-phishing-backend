@@ -1,6 +1,6 @@
 from .base_service import BaseService
 from repository.template_repository import TemplateRepo
-from .campaign_service import CampaignService
+from . import campaign_service
 from nh3 import Cleaner
 
 class TemplateService(BaseService):
@@ -10,8 +10,7 @@ class TemplateService(BaseService):
                             'id',
                             'creator_id',
                             'name',
-                            'description',
-                            'code'),
+                            'description'),
                          have_ownership=True,
                          user_id=user_id)
 
@@ -25,12 +24,12 @@ class TemplateService(BaseService):
         return super().before_create(kwargs)
     
     def before_update(self, model):
-        if CampaignService(self.user_id).check_active_campaing(template_id=model.id):
+        if campaign_service.CampaignService(self.user_id).check_active_campaign(template_id=model.id):
             raise RuntimeError
         model.code = self.clean_template_code(model.code)
         return super().before_update(model)
     
     def before_delete(self, model):
-        if CampaignService(self.user_id).check_active_campaing(template_id=model.id):
+        if campaign_service.CampaignService(self.user_id).check_active_campaign(template_id=model.id):
             raise RuntimeError
         return super().before_delete(model)

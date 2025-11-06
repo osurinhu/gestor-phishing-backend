@@ -13,6 +13,7 @@ auth_args.add_argument("password", type=StrLen(200), help="The password of the u
 @ns.route('/')
 class Auth(Resource):
     @jwt_required()
+    @ns.doc(security='bearerAuth')
     def get(self):
         return current_user.to_dict(only=('name','is_admin'))
     

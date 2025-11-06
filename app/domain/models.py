@@ -8,7 +8,7 @@ class User(db.Model):
     __tablename__ = 'user'
 
     id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
-    name: Mapped[str] = mapped_column(String(25), unique=True)
+    name: Mapped[str] = mapped_column(String(50), unique=True)
     password: Mapped[str] = mapped_column(String(255))
     is_admin: Mapped[bool] = mapped_column(default=False)
     deleted: Mapped[bool] = mapped_column(default=False)
@@ -24,8 +24,8 @@ class Group(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     creator_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('user.id'))
-    name: Mapped[str] = mapped_column(String(25))
-    description: Mapped[Optional[str]] = mapped_column(String(50))
+    name: Mapped[str] = mapped_column(String(50))
+    description: Mapped[Optional[str]] = mapped_column(String(200))
     deleted: Mapped[bool] = mapped_column(default=False)
 
     # Relationships
@@ -40,6 +40,7 @@ class Target(db.Model):
     group_id: Mapped[int] = mapped_column(ForeignKey('group.id'))
     creator_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('user.id'))
     name: Mapped[str] = mapped_column(String(50))
+    person_code: Mapped[str] = mapped_column(String(20))
     email: Mapped[str] = mapped_column(String(255))
     deleted: Mapped[bool] = mapped_column(default=False)
 
@@ -54,8 +55,8 @@ class Template(db.Model):
 
     id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
     creator_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('user.id'))
-    name: Mapped[str] = mapped_column(String(25))
-    description: Mapped[Optional[str]] = mapped_column(String(50))
+    name: Mapped[str] = mapped_column(String(50))
+    description: Mapped[Optional[str]] = mapped_column(String(200))
     code: Mapped[str] = mapped_column(Text)
     deleted: Mapped[bool] = mapped_column(default=False)
 
@@ -70,32 +71,32 @@ class Campaign(db.Model):
     creator_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('user.id'))
     group_id: Mapped[int] = mapped_column(ForeignKey('group.id'))
     template_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('template.id'))
-    name: Mapped[str] = mapped_column(String(25))
-    description: Mapped[Optional[str]] = mapped_column(String(50))
-    active: Mapped[bool] = mapped_column(default=True)
+    name: Mapped[str] = mapped_column(String(50))
+    description: Mapped[Optional[str]] = mapped_column(String(200))
+    active: Mapped[bool] = mapped_column(default=False)
     start_date: Mapped[date] = mapped_column()
     end_date: Mapped[date] = mapped_column()
     send_time: Mapped[time] = mapped_column()
     subject_text: Mapped[str] = mapped_column(String(50))
     title_text: Mapped[str] = mapped_column(String(50))
-    body_text: Mapped[str] = mapped_column(String(200))
+    body_text: Mapped[str] = mapped_column(String(500))
     deleted: Mapped[bool] = mapped_column(default=False)
 
     # Relationship
     creator: Mapped['User'] = relationship(back_populates='created_campaign')
     group: Mapped['Group'] = relationship(back_populates='group_campaign')
     template: Mapped['Template'] = relationship(back_populates='template_campaign')
-    email_sent: Mapped[List['EmailSent']] = relationship(back_populates='from_campaing')
+    email_sent: Mapped[List['EmailSent']] = relationship(back_populates='from_campaign')
 
 class EmailSent(db.Model):
     __tablename__ = 'email_sent'
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     target_id: Mapped[int] = mapped_column(ForeignKey('target.id'))
-    campaing_id: Mapped[int] = mapped_column(ForeignKey('campaign.id'))
+    campaign_id: Mapped[int] = mapped_column(ForeignKey('campaign.id'))
     interacted: Mapped[bool] = mapped_column(default=False)
     interaction_date: Mapped[Optional[datetime]] = mapped_column()
 
     # Relationship
     target: Mapped['Target'] = relationship(back_populates='email_received')
-    from_campaing: Mapped['Campaign'] = relationship(back_populates='email_sent')
+    from_campaign: Mapped['Campaign'] = relationship(back_populates='email_sent')

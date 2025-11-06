@@ -27,4 +27,5 @@ APIV1 = [
     "blueprint.restapi.v1.group",
     "blueprint.restapi.v1.target",
     "blueprint.restapi.v1.template",
+    "blueprint.restapi.v1.campaign",
 ]

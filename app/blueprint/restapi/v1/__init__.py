@@ -6,15 +6,26 @@ from flask_restx import Api, reqparse
 from argparse import ArgumentTypeError
 from email_validator import validate_email, EmailNotValidError
 import json
+from datetime import datetime
 
 blueprint = Blueprint('api', __name__, url_prefix='/api/v1')
+
+authorizations={
+    'bearerAuth': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'Authorization',
+        'description': 'Enter your Bearer token in the format **Bearer <token>**'
+    }
+}
 
 api = Api(
     blueprint,
     title='API',
     version='V1',
     description='First version of the api',
-    validate=True)
+    validate=True,
+    authorizations=authorizations)
 
 class StrLen(object):
     def __init__(self, lenght:int, min:int=5):
@@ -58,6 +69,15 @@ def target(value):
     return value
 
 target.__schema__ = {'type':'json', 'format':"{'name':'John', 'email':'doejohn@mail.com'}"}
+
+def timeO(value):
+    try:
+        # Parse the string into a datetime object, then extract the time part
+        return datetime.strptime(value, '%H:%M').time()
+    except ValueError:
+        raise ValueError(f"Time '{value}' must be in HH:MM:SS format")
+
+
 
 page_args = reqparse.RequestParser()
 page_args.add_argument("page", type=int, help="The current page of the query", location='args', required=False, default=1)

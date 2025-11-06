@@ -14,7 +14,7 @@ class BaseService:
 
     def validate_ownership(self, model:BaseModel):
         if self.have_ownership:
-            if model.id != self.user_id:
+            if model.creator_id != self.user_id:
                 raise PermissionError
 
     def before_create(self, kwargs):
@@ -78,88 +78,7 @@ class BaseService:
         if commit:
             self.repo.commit()
         return inserted_ids
-            
-    def before_delete(self, model:BaseModel):
-        pass
-        
-    def delete(self, id:int, commit:bool=True)-> dict:
-        model = self.repo.get_by_id(id)
-        self.validate_ownership(model)
-        self.before_delete(model)
-        model =  self.repo.delete(model)
-        if commit:
-            self.commit()
-        return model.to_dict(self.safe_fields)
-
-    def get_by_id(self, id:int, fields:list=None, show_deleted:bool=False)-> dict:
-        model = self.repo.get_by_id(id)
-        if not model:
-            return None
-
-        self.validate_ownership(model)
-
-        if model.deleted and not show_deleted:
-            return None
-            
-        if not fields:
-            fields=self.safe_fields
-
-        return model.to_dict(fields)
     
-    def get_by_filter(self, fields:list=None, limit:int=50, show_deleted:bool=False, **kwargs)-> dict:
-        """Returns a list with the query elements"""
-        if self.have_ownership:
-            kwargs['creator_id'] = self.user_id
-
-        if not show_deleted:
-            kwargs['deleted'] = False
-
-        if not fields:
-            fields=self.safe_fields
-
-        values = self.repo.get_by_filter(**kwargs)
-        serialized = []
-        for value in values:
-            serialized.append(value.to_dict(fields))
-        return serialized
-
-    def get_page_filtered(self, fields:list=None, page:int=1, per_page:int=20, exact:dict=dict(), **kwargs)-> dict:
-        """
-            Get dict of a querys page.
-
-            :param fields: Which filds of the model should be returned.
-            :type field: tuple[str]
-            :param page: Which page should be returned.
-            :type page: int
-            :param per_page: Number of elements in the page.
-            :type per_page: int
-            :param exact: Key value pairs that represent exact matchs of model value 
-            :type exact: dict
-            :param kwargs: Arguments passed as not exact match of an model value
-            :type kwargs: str
-        """
-
-        if not fields:
-            fields=self.safe_fields
-
-        exact['deleted'] = False
-        if self.have_ownership:
-            exact['creator_id'] = self.user_id
-
-        p = self.repo.get_page_by_filter(page=page, per_page=per_page, exact=exact, like=kwargs)
-
-        items = []
-        for item in p:
-            items.append(item.to_dict(only=fields))
-        return {
-            'items': items,
-            'current_page': p.page,
-            'total_of_items': p.total,
-            'total_of_pages': p.pages,
-            'has_prev': p.has_prev,
-            'has_next': p.has_next,
-        }
-
     def before_update(self, model:BaseModel):
         pass
 
@@ -175,6 +94,103 @@ class BaseService:
         if commit:
             self.commit()
         return model.to_dict(self.safe_fields)
+            
+    def before_delete(self, model:BaseModel):
+        pass
+        
+    def delete(self, id:int, commit:bool=True)-> dict:
+        model = self.repo.get_by_id(id)
+        self.validate_ownership(model)
+        self.before_delete(model)
+        model =  self.repo.delete(model)
+        if commit:
+            self.commit()
+        return model.to_dict(self.safe_fields)
+
+    def get_by_id(self, id:int, fields:list=None, extra_fields:tuple=None, show_deleted:bool=False)-> dict:
+        model = self.repo.get_by_id(id)
+        if not model:
+            return None
+
+        self.validate_ownership(model)
+
+        if model.deleted and not show_deleted:
+            return None
+            
+        if not fields:
+            fields=self.safe_fields
+
+        if extra_fields:
+            fields += extra_fields
+
+
+        return model.to_dict(fields)
+    
+    def get_by_filter(self, fields:tuple=None, extra_fields:tuple=None, limit:int=50, show_deleted:bool=False, **kwargs)-> dict:
+        """Returns a list with the query elements"""
+        if self.have_ownership:
+            kwargs['creator_id'] = self.user_id
+
+        if not show_deleted:
+            kwargs['deleted'] = False
+
+        if not fields:
+            fields=self.safe_fields
+        
+        if extra_fields:
+            fields += extra_fields
+
+        values = self.repo.get_by_filter(**kwargs)
+        serialized = []
+        for value in values:
+            serialized.append(value.to_dict(fields))
+        return serialized
+
+    def get_page_filtered(self, fields:tuple=None, extra_fields:tuple=None, page:int=1, per_page:int=20, exact:dict=dict(), **kwargs)-> dict:
+        """
+            Get dict of a querys page.
+
+            :param fields: Which filds of the model should be returned, overrides safe_fields.
+            :type field: tuple[str]
+            :param extra_fields: Which filds of the model should be returned, joins with safe_fields.
+            :type extra_field: tuple[str]
+            :param page: Which page should be returned.
+            :type page: int
+            :param per_page: Number of elements in the page.
+            :type per_page: int
+            :param exact: Key value pairs that represent exact matchs of model value 
+            :type exact: dict
+            :param kwargs: Arguments passed as not exact match of an model value
+            :type kwargs: str
+        """
+        exact['deleted'] = False
+        if self.have_ownership:
+            exact['creator_id'] = self.user_id
+        
+        if not fields:
+            fields=self.safe_fields
+
+        if extra_fields:
+            fields += extra_fields
+
+        p = self.repo.get_page_by_filter(page=page, per_page=per_page, exact=exact, like=kwargs)
+
+        items = []
+        for item in p:
+            items.append(item.to_dict(only=fields))
+        return {
+            'items': items,
+            'current_page': p.page,
+            'total_of_items': p.total,
+            'total_of_pages': p.pages,
+            'has_prev': p.has_prev,
+            'has_next': p.has_next,
+        }
+
+    def exists(self, id)-> bool:
+        if self.get_by_id(id=id):
+            return True
+        return False
 
     def commit(self):
         return self.repo.commit()
