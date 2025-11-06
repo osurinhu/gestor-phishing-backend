@@ -28,7 +28,7 @@ target_query_args.add_argument('email', type=str, help='The email of the target'
 
 target_creation_args = reqparse.RequestParser()
 target_creation_args.add_argument('name', type=StrLen(50), help='The name of the target being created', location='form', required = True)
-target_creation_args.add_argument('person_code', type=StrLen(20, 1), help='The person code of the target being created', location='form', required = True)
+target_creation_args.add_argument('person_code', type=StrLen(25, 1), help='The person code of the target being created', location='form', required = True)
 target_creation_args.add_argument('email', type=email, help='The email of the target being created', location='form', required = True)
 
 @ns.route('/')
@@ -85,13 +85,10 @@ class GroupId(Resource):
     def get(self, id):
         try:
             group = GroupService(current_user.id).get_by_id(id=id)
-            if not group:
-                return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
             return make_response(group, 200)
         except PermissionError:
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
-        except:
-            return abort(500, message='Coudnt get group', error='Internal Error')
+
     
     @jwt_required()
     @ns.doc(security='bearerAuth')

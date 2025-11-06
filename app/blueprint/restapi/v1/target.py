@@ -8,7 +8,7 @@ ns = Namespace('Target', 'Target crud operations', path='/target')
 
 target_update_args = reqparse.RequestParser()
 target_update_args.add_argument("name", type=StrLen(50), help="The name of the target being updatedd", location="form", default='', required = False)
-target_update_args.add_argument("person_code", type=StrLen(20), help="The person code of the target being updated", location="form", default='', required = False)
+target_update_args.add_argument("person_code", type=StrLen(25, 1), help="The person code of the target being updated", location="form", default='', required = False)
 target_update_args.add_argument("email", type=email, help="The email of the target being updatedd", location="form",  default='', required = False)
 
 @ns.route('/<int:id>')
@@ -18,8 +18,6 @@ class TargetId(Resource):
     def get(self, id):
         try:
             target = TargetService(current_user.id).get_by_id(id=id)
-            if not target:
-                return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
             return make_response(target, 200)
         except PermissionError:
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
@@ -35,7 +33,7 @@ class TargetId(Resource):
                 id=id,
                 name=args['name'],
                 email=args['email'],
-                code_person=args['person_code'])
+                person_code=args['person_code'])
             return make_response(target, 200)
         except PermissionError:
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})

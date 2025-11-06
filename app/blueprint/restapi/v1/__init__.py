@@ -51,24 +51,26 @@ def email(value):
     return value
 
 def target(value):
-    fields = {'name', 'email'}
+    fields = {'name', 'email', 'person_code'}
     # Checks if value is a json
     try:
         value = json.loads(value)
     except:
-        raise ArgumentTypeError("Target must be formated as {'name':'John Doe', 'email':'doejohn@mail.com'}")
+        raise ArgumentTypeError("Target must be formated as {'name':'John Doe', 'person_code':'john#312', 'email':'doejohn@mail.com'}")
     # Checks if value have the necessary fields
     if not fields.issubset(value):
-        raise  ArgumentTypeError("Target must be formated as {'name':'John Doe', 'email':'doejohn@mail.com'}")
+        raise ArgumentTypeError("Target must be formated as {'name':'John Doe', 'person_code':'john#312', 'email':'doejohn@mail.com'}")
+    
     # Checks if the email is valid
-
     value['name'] = StrLen(25).__call__(value['name'])
 
     value['email'] = email(value['email'])
 
+    value['person_code'] = StrLen(25, 1).__call__(value['person_code'])
+
     return value
 
-target.__schema__ = {'type':'json', 'format':"{'name':'John', 'email':'doejohn@mail.com'}"}
+target.__schema__ = {'type':'json', 'format':"{'name':'John Doe', 'person_code':'john#312', 'email':'doejohn@mail.com'}"}
 
 def timeO(value):
     try:

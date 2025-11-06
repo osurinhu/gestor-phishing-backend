@@ -40,7 +40,7 @@ class Target(db.Model):
     group_id: Mapped[int] = mapped_column(ForeignKey('group.id'))
     creator_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('user.id'))
     name: Mapped[str] = mapped_column(String(50))
-    person_code: Mapped[str] = mapped_column(String(20))
+    person_code: Mapped[str] = mapped_column(String(25))
     email: Mapped[str] = mapped_column(String(255))
     deleted: Mapped[bool] = mapped_column(default=False)
 

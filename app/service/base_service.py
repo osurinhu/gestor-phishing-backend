@@ -84,6 +84,8 @@ class BaseService:
 
     def update(self, id:int, commit:bool=True, **kwargs):
         model = self.repo.get_by_id(id=id)
+        if not model:
+            raise PermissionError
         self.validate_ownership(model)
         self.before_update(model)
         args = dict()
@@ -100,6 +102,8 @@ class BaseService:
         
     def delete(self, id:int, commit:bool=True)-> dict:
         model = self.repo.get_by_id(id)
+        if not model:
+            raise PermissionError
         self.validate_ownership(model)
         self.before_delete(model)
         model =  self.repo.delete(model)
@@ -110,7 +114,7 @@ class BaseService:
     def get_by_id(self, id:int, fields:list=None, extra_fields:tuple=None, show_deleted:bool=False)-> dict:
         model = self.repo.get_by_id(id)
         if not model:
-            return None
+            raise PermissionError
 
         self.validate_ownership(model)
 

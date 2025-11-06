@@ -6,10 +6,12 @@ from service.user_service import UserService
 def create_db():
     """Creates database"""
     db.create_all()
+    print('Database created!')
 
 def drop_db():
     """Drops database"""
     db.drop_all()
+    print('Database droppd!')
 
 def add_admin():
     service = UserService()
