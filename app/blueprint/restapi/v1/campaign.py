@@ -84,8 +84,12 @@ class Campaign(Resource):
             return make_response(campaign, 201)
         except ValueError as e:
             if e.args:
-                if e.args[0] == 'dates':
-                    return abort(400, message='Validation error', error={'dates':'Start date bigger than end date'})
+                if e.args[0] == 'endstart':
+                    return abort(400, message='Validation error', error={'dates':'End date should be later than start date'})
+                if e.args[0] == 'startpast':
+                    return abort(400, message='Validation error', error={'dates':'Start date should be in the future'})
+                if e.args[0] == 'endpast':
+                    return abort(400, message='Validation error', error={'dates':'End date should be in the future'})
                 elif e.args[0] == 'group':
                     return abort(400, message='Validation error', error={'group':'Referenced id element not found'})
                 elif e.args[0] == 'template':

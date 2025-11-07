@@ -33,8 +33,12 @@ class CampaignService(BaseService):
         return False
     
     def validate_dates(self, start_date:date, end_date:date):
-        if (start_date > end_date) or (start_date < datetime.today()) or (end_date < datetime.today()):
-            raise ValueError('dates')
+        if (start_date > end_date):
+            raise ValueError('endstart')
+        if (start_date < datetime.today()):
+            raise ValueError('startpast')
+        if (end_date < datetime.today()):
+            raise ValueError('endpast')
         
     def before_create(self, kwargs):
         if not group_service.GroupService(self.user_id).exists(kwargs['group_id']):
