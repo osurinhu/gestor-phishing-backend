@@ -85,6 +85,8 @@ class GroupId(Resource):
     def get(self, id):
         try:
             group = GroupService(current_user.id).get_by_id(id=id)
+            if not group:
+                raise PermissionError
             return make_response(group, 200)
         except PermissionError:
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
@@ -158,9 +160,9 @@ class GroupTarget(Resource):
         except RuntimeError:
             return abort(400, message='Target cant be added', error={'Group has a campaign active right now'})
         except FileExistsError as e:
-            if e.args['email']:
+            if e.args[0] == 'email':
                 return abort(400, message='Target cant be updated', error={'Email already in use in that group'})
-            if e.args['cod']:
+            if e.args[0] == 'cod':
                 return abort(400, message='Target cant be updated', error={'Person code already in use in that group'})
         except:
             return abort(500, message='Coudnt update target', error='Internal Error')

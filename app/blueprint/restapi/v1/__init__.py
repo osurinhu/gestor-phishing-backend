@@ -72,6 +72,13 @@ def target(value):
 
 target.__schema__ = {'type':'json', 'format':"{'name':'John Doe', 'person_code':'john#312', 'email':'doejohn@mail.com'}"}
 
+def group_id(value):
+    try:
+        value = int(value)
+    except:
+        raise ArgumentTypeError("Value must be an integer")
+    
+
 def timeO(value):
     try:
         # Parse the string into a datetime object, then extract the time part

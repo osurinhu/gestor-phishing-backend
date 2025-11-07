@@ -32,7 +32,7 @@ class CampaignService(BaseService):
         return False
     
     def validate_dates(self, start_date:date, end_date:date):
-        if start_date > end_date:
+        if (start_date > end_date) or (start_date < date.today()) or (end_date < date.today()):
             raise ValueError('dates')
         
     def before_create(self, kwargs):

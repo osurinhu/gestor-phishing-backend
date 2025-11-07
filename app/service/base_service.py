@@ -114,9 +114,12 @@ class BaseService:
     def get_by_id(self, id:int, fields:list=None, extra_fields:tuple=None, show_deleted:bool=False)-> dict:
         model = self.repo.get_by_id(id)
         if not model:
-            raise PermissionError
+            return None
 
-        self.validate_ownership(model)
+        try:
+            self.validate_ownership(model)
+        except PermissionError:
+            return None
 
         if model.deleted and not show_deleted:
             return None

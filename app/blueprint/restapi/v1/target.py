@@ -18,6 +18,8 @@ class TargetId(Resource):
     def get(self, id):
         try:
             target = TargetService(current_user.id).get_by_id(id=id)
+            if not target:
+                raise PermissionError
             return make_response(target, 200)
         except PermissionError:
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})

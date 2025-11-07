@@ -90,6 +90,7 @@ class Campaign(Resource):
                     return abort(400, message='Validation error', error={'group':'Referenced id element not found'})
                 elif e.args[0] == 'template':
                     return abort(400, message='Validation error', error={'template':'Referenced id element not found'})
+            return abort(500, message='Coudnt create campaign', error='Internal Error')
         except:
             return abort(500, message='Coudnt create campaign', error='Internal Error')
 
