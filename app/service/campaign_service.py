@@ -1,6 +1,7 @@
 from .base_service import BaseService
 from repository.campaign_repository import CampaignRepo
 from datetime import date
+from datetime import datetime
 from . import group_service
 from . import template_service
 from nh3 import clean
@@ -32,7 +33,7 @@ class CampaignService(BaseService):
         return False
     
     def validate_dates(self, start_date:date, end_date:date):
-        if (start_date > end_date) or (start_date < date.today()) or (end_date < date.today()):
+        if (start_date > end_date) or (start_date < datetime.today()) or (end_date < datetime.today()):
             raise ValueError('dates')
         
     def before_create(self, kwargs):
