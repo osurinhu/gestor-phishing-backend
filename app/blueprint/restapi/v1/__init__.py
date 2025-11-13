@@ -8,7 +8,7 @@ from email_validator import validate_email, EmailNotValidError
 import json
 from datetime import datetime
 
-blueprint = Blueprint('api', __name__, url_prefix='/api/v1')
+blueprint = Blueprint('apiv1', __name__, url_prefix='/api/v1')
 
 authorizations={
     'bearerAuth': {
@@ -41,7 +41,6 @@ class StrLen(object):
         if (len(value) < self.min):
             raise ArgumentTypeError(f'Argument must have a minimum lenght of {self.min} characters')
         return value
-
 
 def email(value):
     try:
@@ -84,9 +83,14 @@ def timeO(value):
         # Parse the string into a datetime object, then extract the time part
         return datetime.strptime(value, '%H:%M').time()
     except ValueError:
-        raise ValueError(f"Time '{value}' must be in HH:MM:SS format")
+        raise ArgumentTypeError(f"Time '{value}' must be in HH:MM format")
 
-
+def dateO(value):
+    """Parse a valid looking date in the format YYYY-mm-dd"""
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except:
+        raise ArgumentTypeError(f"Date '{value}' must be in YYYY-MM-DD format")
 
 page_args = reqparse.RequestParser()
 page_args.add_argument("page", type=int, help="The current page of the query", location='args', required=False, default=1)

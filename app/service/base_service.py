@@ -3,17 +3,17 @@ from domain.base import BaseModel
 from typing import Iterable, Any
 
 class BaseService:
-    def __init__(self, repo: base_repository, user_id:int=0, have_ownership:bool=False, safe_fields:tuple=tuple()):
-        if have_ownership and not user_id:
-            raise ValueError
+    def __init__(self, repo: base_repository, user_id:int=None, have_ownership:bool=False, safe_fields:tuple=tuple()):
+        if have_ownership and not user_id and user_id !=0:
+            raise NotImplementedError
 
         self.repo = repo
-        self.safe_fields = safe_fields + ('deleted',)
+        self.safe_fields = safe_fields
         self.have_ownership = have_ownership
         self.user_id = user_id
 
     def validate_ownership(self, model:BaseModel):
-        if self.have_ownership:
+        if self.have_ownership and self.user_id != 0:
             if model.creator_id != self.user_id:
                 raise PermissionError
 
@@ -79,7 +79,7 @@ class BaseService:
             self.repo.commit()
         return inserted_ids
     
-    def before_update(self, model:BaseModel):
+    def before_update(self, model:BaseModel, kwargs):
         pass
 
     def update(self, id:int, commit:bool=True, **kwargs):
@@ -87,7 +87,7 @@ class BaseService:
         if not model:
             raise PermissionError
         self.validate_ownership(model)
-        self.before_update(model)
+        self.before_update(model, kwargs)
         args = dict()
         for key, value in kwargs.items(): 
             if value:
@@ -110,6 +110,21 @@ class BaseService:
         if commit:
             self.commit()
         return model.to_dict(self.safe_fields)
+    
+    def before_put(self, new_entry:dict, old_model:BaseModel):
+        pass
+
+    def put(self, id, commit = True, **kwargs):
+        old_model = self.repo.get_by_id(id)
+        new_entry =  self.create(**kwargs, commit=False)
+        self.before_put(new_entry, old_model)
+        try:
+            self.delete(id, commit=False)
+        except:
+            pass
+        if commit:
+            self.commit()
+        return new_entry
 
     def get_by_id(self, id:int, fields:list=None, extra_fields:tuple=None, show_deleted:bool=False)-> dict:
         model = self.repo.get_by_id(id)
@@ -133,9 +148,9 @@ class BaseService:
 
         return model.to_dict(fields)
     
-    def get_by_filter(self, fields:tuple=None, extra_fields:tuple=None, limit:int=50, show_deleted:bool=False, **kwargs)-> dict:
+    def get_by_filter(self, fields:tuple=None, extra_fields:tuple=None, limit:int=None, show_deleted:bool=False, **kwargs)-> dict:
         """Returns a list with the query elements"""
-        if self.have_ownership:
+        if self.have_ownership and self.user_id != 0:
             kwargs['creator_id'] = self.user_id
 
         if not show_deleted:
@@ -147,7 +162,7 @@ class BaseService:
         if extra_fields:
             fields += extra_fields
 
-        values = self.repo.get_by_filter(**kwargs)
+        values = self.repo.get_by_filter(**kwargs, limit=limit)
         serialized = []
         for value in values:
             serialized.append(value.to_dict(fields))

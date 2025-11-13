@@ -44,16 +44,18 @@ class TargetService(BaseService):
             raise FileExistsError('code')
         return super().before_create(kwargs)
     
-    def before_update(self, model):
-        if not GroupService(self.user_id).exists(model.group_id):
+    def before_update(self, model, kwargs):
+        if not GroupService(self.user_id).exists(kwargs.get('group_id', model.group_id)):
             raise ValueError
         if CampaignService(self.user_id).check_active_campaign(group_id=model.group_id):
             raise RuntimeError
-        if self.email_in_group(email=model.email, group_id=model.group_id, model_id=model.id):
-            raise FileExistsError('email')
-        if self.code_in_group(code=model.person_code, group_id=model.group_id, model_id=model.id):
-            raise FileExistsError('code')
-        return super().before_update(model)
+        if kwargs.get('email',None):
+            if self.email_in_group(email=model.email, group_id=model.group_id, model_id=model.id):
+                raise FileExistsError('email')
+        if kwargs.get('person_code', None):
+            if self.code_in_group(code=model.person_code, group_id=model.group_id, model_id=model.id):
+                raise FileExistsError('code')
+
     
     def before_delete(self, model):
         if CampaignService(self.user_id).check_active_campaign(group_id=model.group_id):

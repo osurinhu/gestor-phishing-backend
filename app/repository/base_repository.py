@@ -24,11 +24,11 @@ class BaseRepo:
         """Get a model element in the database by id"""
         return db.session.execute(db.select(self.model).where(self.model.id == id)).scalar_one_or_none()
 
-    def get_by_filter(self, limit:int=20, **kwargs)-> List[BaseModel]:
-        if limit>100:
-            limit=100
+    def get_by_filter(self, limit:int=None, **kwargs)-> List[BaseModel]:
         try:
-            stmt = db.select(self.model).filter_by(**kwargs).limit(limit)
+            stmt = db.select(self.model).filter_by(**kwargs)
+            if limit:
+                stmt = stmt.limit(limit)
             return db.session.execute(stmt).scalars().all()
         except SQLAlchemyError as error:
             return error

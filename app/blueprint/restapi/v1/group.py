@@ -9,7 +9,7 @@ ns = Namespace('Group', 'Target group crud operations', path='/group')
 
 group_creation_args = reqparse.RequestParser()
 group_creation_args.add_argument('name', type=StrLen(50), help='The name of the group being created', location='form', required=True)
-group_creation_args.add_argument('desc', type=StrLen(lenght=200, min=0), help='The description of the group being created', location='form', default='')
+group_creation_args.add_argument('desc', type=StrLen(lenght=200, min=0), help='The description of the group being created', location='form')
 group_creation_args.add_argument('target', type=target, action='append', location='form', required=False, default=list)
 
 group_query_args = page_args.copy()
@@ -17,11 +17,11 @@ group_query_args.add_argument('id', type=str, help='The id of the group', locati
 group_query_args.add_argument('name', type=str, help='The name of the group', location='args', default='')
 
 group_update_args = reqparse.RequestParser()
-group_update_args.add_argument('name', type=StrLen(50), help='The new name of the group being updated', location='form', default='')
-group_update_args.add_argument('desc', type=StrLen(lenght=200, min=0), help='The new description of the group being updated', location='form', default='')
+group_update_args.add_argument('name', type=StrLen(50), help='The new name of the group being updated', location='form')
+group_update_args.add_argument('desc', type=StrLen(lenght=200, min=0), help='The new description of the group being updated', location='form')
 
 target_query_args = page_args.copy()
-target_query_args.add_argument('id', type=str, help='The id of the target', location='args', default='')
+target_query_args.add_argument('target_id', type=str, help='The id of the target', location='args', default='')
 target_query_args.add_argument('name', type=str, help='The name of the target', location='args', default='')
 target_query_args.add_argument('person_code', type=str, help='The person code of the target', location='args', default='')
 target_query_args.add_argument('email', type=str, help='The email of the target', location='args', default='')
@@ -134,7 +134,7 @@ class GroupTarget(Resource):
             page=args['page'],
             per_page=args['per_page'],
             exact={'group_id':id},
-            id=args['id'],
+            id=args['target_id'],
             person_code=args['person_code'],
             name=args['name'],
             email=args['email'])
@@ -160,9 +160,11 @@ class GroupTarget(Resource):
         except RuntimeError:
             return abort(400, message='Target cant be added', error={'Group has a campaign active right now'})
         except FileExistsError as e:
-            if e.args[0] == 'email':
-                return abort(400, message='Target cant be updated', error={'Email already in use in that group'})
-            if e.args[0] == 'cod':
-                return abort(400, message='Target cant be updated', error={'Person code already in use in that group'})
+            if e.args:
+                if e.args[0] == 'email':
+                    return abort(400, message='Target cant be updated', error={'email':'Email already in use in that group'})
+                elif e.args[0] == 'code':
+                    return abort(400, message='Target cant be updated', error={'person_code':'Person code already in use in that group'})
+            return abort(500, message='Coudnt update target', error='Internal Error')
         except:
             return abort(500, message='Coudnt update target', error='Internal Error')

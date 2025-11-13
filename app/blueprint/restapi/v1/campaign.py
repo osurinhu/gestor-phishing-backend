@@ -1,8 +1,9 @@
-from flask_restx import Namespace, Resource, reqparse, abort, inputs
+from flask_restx import Namespace, Resource, reqparse, abort
 from flask_jwt_extended import jwt_required, current_user
 from flask import make_response
 from service.campaign_service import CampaignService
-from . import StrLen, page_args, timeO
+from . import StrLen, page_args, timeO, dateO, email
+
 
 
 ns = Namespace('Campaign', 'Campaign crud operations', path='/campaign')
@@ -11,12 +12,14 @@ campaign_creation_args = reqparse.RequestParser()
 campaign_creation_args.add_argument('group_id', type=int, help='ID of the group associated with this campaign', location='form', required=True)
 campaign_creation_args.add_argument('template_id', type=int, help='ID of the email template used by the campaign', location='form', required=True)
 campaign_creation_args.add_argument('name', type=StrLen(50), help='Name of the campaign', location='form', required=True)
-campaign_creation_args.add_argument('desc', type=StrLen(lenght=200, min=0), help='Description of the campaign', location='form', default='')
-campaign_creation_args.add_argument('start_date', type=inputs.date, help='Start date of the campaign (YYYY-MM-DD)', location='form', required=True)
-campaign_creation_args.add_argument('end_date', type=inputs.date, help='End date of the campaign (YYYY-MM-DD)', location='form', required=True)
+campaign_creation_args.add_argument('desc', type=StrLen(lenght=200, min=0), help='Description of the campaign', location='form')
+campaign_creation_args.add_argument("email", type=email, help="The sender email of the campaign", location="form", required=True)
+campaign_creation_args.add_argument('start_date', type=dateO, help='Start date of the campaign (YYYY-MM-DD)', location='form', required=True)
+campaign_creation_args.add_argument('end_date', type=dateO, help='End date of the campaign (YYYY-MM-DD)', location='form', required=True)
 campaign_creation_args.add_argument('send_time', type=timeO, help='Time when the emails should be sent (HH:MM)', location='form', required=True)
 campaign_creation_args.add_argument('subject_text', type=StrLen(50), help='Subject of the email', location='form', required=True)
 campaign_creation_args.add_argument('title_text', type=StrLen(50), help='Title text of the email', location='form', required=True)
+campaign_creation_args.add_argument('button_text', type=StrLen(50), help='Button text of the email', location='form', required=True)
 campaign_creation_args.add_argument('body_text', type=StrLen(500), help='Body text of the email', location='form', required=True)
 
 campaign_query_args = page_args.copy()
@@ -24,22 +27,24 @@ campaign_query_args.add_argument('id', type=str, help='The id of the campaign', 
 campaign_query_args.add_argument('name', type=StrLen(50), help='Name of the campaign', location='args', default='')
 campaign_query_args.add_argument('group_id', type=int, help='The target group of the campaign', location='args', default='')
 campaign_query_args.add_argument('template_id', type=int, help='The template of the campaign', location='args', default='')
-campaign_query_args.add_argument('start_date', type=inputs.date, help='Start date of the campaign (YYYY-MM-DD)', location='args', default='')
-campaign_query_args.add_argument('end_date', type=inputs.date, help='End date of the campaign (YYYY-MM-DD)', location='args', default='')
-campaign_query_args.add_argument('send_time', type=timeO, help='Time when the emails should be sent (HH:MM:SS)', location='args', default='')
-campaign_query_args.add_argument('active', type=bool, help='The status of the campaign', location='args', default='')
+campaign_query_args.add_argument('start_date', type=dateO, help='Start date of the campaign (YYYY-MM-DD)', location='args', default='')
+campaign_query_args.add_argument('end_date', type=dateO, help='End date of the campaign (YYYY-MM-DD)', location='args', default='')
+campaign_query_args.add_argument('send_time', type=timeO, help='Time when the emails should be sent (HH:MM)', location='args', default='')
+campaign_query_args.add_argument('status', type=StrLen(1,1), help='The status of the campaign', location='args', default='')
 
 campaign_update_args = reqparse.RequestParser()
-campaign_update_args.add_argument('group_id', type=int, help='ID of the group associated with this campaign', location='form', default='')
-campaign_update_args.add_argument('template_id', type=int, help='ID of the email template used by the campaign', location='form', default='')
-campaign_update_args.add_argument('name', type=StrLen(50), help='Name of the campaign', location='form', default='')
-campaign_update_args.add_argument('desc', type=StrLen(lenght=200, min=0), help='Description of the campaign', location='form', default='')
-campaign_update_args.add_argument('start_date', type=inputs.date, help='Start date of the campaign (YYYY-MM-DD)', location='form', default='')
-campaign_update_args.add_argument('end_date', type=inputs.date, help='End date of the campaign (YYYY-MM-DD)', location='form', default='')
-campaign_update_args.add_argument('send_time', type=timeO, help='Time when the emails should be sent (HH:MM)', location='form', default='')
-campaign_update_args.add_argument('subject_text', type=StrLen(50), help='Subject of the email', location='form', default='')
-campaign_update_args.add_argument('title_text', type=StrLen(50), help='Title text of the email', location='form', default='')
-campaign_update_args.add_argument('body_text', type=StrLen(500), help='Body text of the email', location='form', default='')
+campaign_update_args.add_argument('group_id', type=int, help='ID of the group associated with this campaign', location='form')
+campaign_update_args.add_argument('template_id', type=int, help='ID of the email template used by the campaign', location='form')
+campaign_update_args.add_argument('name', type=StrLen(50), help='Name of the campaign', location='form')
+campaign_update_args.add_argument('desc', type=StrLen(lenght=200, min=0), help='Description of the campaign', location='form')
+campaign_update_args.add_argument("email", type=email, help="The sender email of the campaign", location="form")
+campaign_update_args.add_argument('start_date', type=dateO, help='Start date of the campaign (YYYY-MM-DD)', location='form')
+campaign_update_args.add_argument('end_date', type=dateO, help='End date of the campaign (YYYY-MM-DD)', location='form')
+campaign_update_args.add_argument('send_time', type=timeO, help='Time when the emails should be sent (HH:MM)', location='form')
+campaign_update_args.add_argument('subject_text', type=StrLen(50), help='Subject of the email', location='form')
+campaign_update_args.add_argument('title_text', type=StrLen(50), help='Title text of the email', location='form')
+campaign_update_args.add_argument('button_text', type=StrLen(50), help='Button text of the email', location='form')
+campaign_update_args.add_argument('body_text', type=StrLen(500), help='Body text of the email', location='form')
 
 
 @ns.route('/')
@@ -58,7 +63,7 @@ class Campaign(Resource):
             start_date=args['start_date'],
             end_date=args['end_date'],
             send_time=args['send_time'],
-            active=args['active']
+            status=args['status']
         )
         return make_response(page, 200)
 
@@ -79,7 +84,9 @@ class Campaign(Resource):
                 send_time=args['send_time'],
                 subject_text=args['subject_text'],
                 title_text=args['title_text'],
-                body_text=args['body_text']
+                body_text=args['body_text'],
+                button_text=args['button_text'],
+
             )
             return make_response(campaign, 201)
         except ValueError as e:
@@ -128,7 +135,9 @@ class CampaignId(Resource):
                 send_time=args['send_time'],
                 subject_text=args['subject_text'],
                 title_text=args['title_text'],
-                body_text=args['body_text'])
+                body_text=args['body_text'],
+                button_text=args['button_text']
+                )
             return make_response(group, 200)
         except ValueError as e:
             if args[0] == 'date':
@@ -140,13 +149,13 @@ class CampaignId(Resource):
         except PermissionError as e:
             if e.args:
                 if e.args['active']:
-                    return abort(423, message='Campaign is active, cant perform changes')
+                    return abort(423, message='Campaign is unavailable, cant perform changes')
                 else:
                     abort(423)
             else:
                 return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
         except:
-            return abort(500, message='Coudnt create campaign', error='Internal Error')
+            return abort(500, message='Coudnt update campaign', error='Internal Error')
 
     @jwt_required()
     @ns.doc(security='bearerAuth')
@@ -157,12 +166,10 @@ class CampaignId(Resource):
         except PermissionError as e:
             if e.args:
                 if e.args['active']:
-                    return abort(423, message='Campaign is active, cant perform changes')
+                    return abort(423, message='Campaign is unavailable, cant perform changes')
                 else:
                     abort(423)
             else:
                 return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
-        except RuntimeError:
-            return abort(400, message='Template cant be deleted', error={'template':'Template has a campaign active right now'})
         except:
             return abort(500, message='Coudnt delete campaign', error='Internal Error')

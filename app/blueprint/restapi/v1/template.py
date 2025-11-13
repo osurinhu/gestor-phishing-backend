@@ -8,17 +8,15 @@ ns = Namespace('Template', 'Target crud operations', path='/template')
 
 template_creation_args = reqparse.RequestParser()
 template_creation_args.add_argument('name', type=StrLen(50), help='The name of the template being created', location='form', required=True)
-template_creation_args.add_argument('desc', type=StrLen(lenght=200, min=0), help='The description of the template being created', location='form', default='')
+template_creation_args.add_argument('desc', type=StrLen(lenght=200, min=0), help='The description of the template being created', location='form')
 template_creation_args.add_argument('code', type=str, help='The html code of the template being created', location='form', required=True)
+
+template_put_args = template_creation_args.copy()
+template_put_args.add_argument('id', type=int, help='The id of the template', location='args', required=True)
 
 template_query_args = page_args.copy()
 template_query_args.add_argument('id', type=str, help='The id of the template', location='args', default='')
 template_query_args.add_argument('name', type=str, help='The name of the template', location='args', default='')
-
-template_update_args = reqparse.RequestParser()
-template_update_args.add_argument('name', type=StrLen(50), help='The name of the template being updated', location='form', default='')
-template_update_args.add_argument('desc', type=StrLen(lenght=200, min=0), help='The description of the template being updated', location='form', default='')
-template_update_args.add_argument('code', type=str, help='The html code of the template being updated', location='form', default='')
 
 @ns.route('/')
 class Template(Resource):
@@ -45,6 +43,22 @@ class Template(Resource):
                 description=args['desc'],
                 code=args['code']
             )
+            return make_response(template, 201)
+        except:
+            abort(500, message='Coudnt create template', error='Internal Error')
+
+    @jwt_required()
+    @ns.doc(security='bearerAuth')
+    @ns.expect(template_put_args)
+    def put(self):
+        args = template_put_args.parse_args(strict=True)
+        try:
+            template =  TemplateService(current_user.id).put(
+                id=args['id'],
+                name=args['name'],
+                description=args['desc'],
+                code=args['code']
+            )
             return make_response(template, 200)
         except:
             abort(500, message='Coudnt create template', error='Internal Error')
@@ -63,25 +77,6 @@ class TemplateId(Resource):
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
         except:
             return abort(500, message='Coudnt get template', error='Internal Error')
-
-    @jwt_required()
-    @ns.doc(security='bearerAuth')
-    @ns.expect(template_update_args)
-    def patch(self, id):
-        args = template_update_args.parse_args(strict=True)
-        try:
-            template = TemplateService(current_user.id).update(
-                id=id,
-                name=args['name'],
-                description=args['desc'],
-                code=args['code'])
-            return make_response(template, 200)
-        except PermissionError:
-            return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
-        except RuntimeError:
-            return abort(400, message='Template cant be deleted', error={'template':'Template has a campaign active right now'})
-        except:
-            return abort(500, message='Coudnt update template', error='Internal Error')
     
     @jwt_required()
     @ns.doc(security='bearerAuth')

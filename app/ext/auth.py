@@ -1,5 +1,4 @@
 from flask_jwt_extended import JWTManager, get_jwt, verify_jwt_in_request, jwt_required
-from functools import wraps
 from flask import jsonify
 from repository.user_repository import UserRepo
 
@@ -19,7 +18,6 @@ def admin_required(f):
             return jsonify(msg="Admins only!"), 403
     return wrapper
 
-
 @jwt.user_identity_loader
 def user_identity_loader(user):
     return {'id':user.id, 'is_admin':user.is_admin}
@@ -30,6 +28,7 @@ def user_lookup_loader(jwt_header,jwt_payload):
 
     id = jwt_payload['sub']['id']
     return repo.get_by_id(id)
+
 
 def init_app(app):
     jwt.init_app(app)

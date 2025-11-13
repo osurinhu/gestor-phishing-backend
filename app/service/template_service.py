@@ -27,8 +27,14 @@ class TemplateService(BaseService):
         if campaign_service.CampaignService(self.user_id).check_active_campaign(template_id=model.id):
             raise RuntimeError
         model.code = self.clean_template_code(model.code)
-        return super().before_update(model)
-    
+
+    def before_put(self, new_entry, old_model):
+        cs = campaign_service.CampaignService(self.user_id)
+        campaigns = cs.get_by_filter(template_id=old_model.id)
+        for campaign in campaigns:
+            if campaign['status'] == 'i':
+                cs.update(campaign['id'], template_id=new_entry['id'], commit=False)
+
     def before_delete(self, model):
         if campaign_service.CampaignService(self.user_id).check_active_campaign(template_id=model.id):
             raise RuntimeError

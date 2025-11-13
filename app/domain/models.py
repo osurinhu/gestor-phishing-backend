@@ -25,7 +25,7 @@ class Group(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     creator_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('user.id'))
     name: Mapped[str] = mapped_column(String(50))
-    description: Mapped[Optional[str]] = mapped_column(String(200))
+    description: Mapped[Optional[str]] = mapped_column(String(200), default='')
     deleted: Mapped[bool] = mapped_column(default=False)
 
     # Relationships
@@ -56,7 +56,7 @@ class Template(db.Model):
     id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
     creator_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('user.id'))
     name: Mapped[str] = mapped_column(String(50))
-    description: Mapped[Optional[str]] = mapped_column(String(200))
+    description: Mapped[Optional[str]] = mapped_column(String(200), default='')
     code: Mapped[str] = mapped_column(Text)
     deleted: Mapped[bool] = mapped_column(default=False)
 
@@ -72,13 +72,15 @@ class Campaign(db.Model):
     group_id: Mapped[int] = mapped_column(ForeignKey('group.id'))
     template_id: Mapped[int] = mapped_column(SmallInteger, ForeignKey('template.id'))
     name: Mapped[str] = mapped_column(String(50))
-    description: Mapped[Optional[str]] = mapped_column(String(200))
-    active: Mapped[bool] = mapped_column(default=False)
+    description: Mapped[Optional[str]] = mapped_column(String(200), default='')
+    sender_email: Mapped[str] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(String(1), default='i')
     start_date: Mapped[date] = mapped_column()
     end_date: Mapped[date] = mapped_column()
     send_time: Mapped[time] = mapped_column()
     subject_text: Mapped[str] = mapped_column(String(50))
     title_text: Mapped[str] = mapped_column(String(50))
+    button_text: Mapped[str] = mapped_column(String(50))
     body_text: Mapped[str] = mapped_column(String(500))
     deleted: Mapped[bool] = mapped_column(default=False)
 

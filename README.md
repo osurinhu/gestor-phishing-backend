@@ -65,7 +65,7 @@ cd app
 3. Rodar servidor
 
 ```
-flask run --debug
+flask run
 ```
 
 ### Comandos adicionais

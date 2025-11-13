@@ -15,6 +15,7 @@ class Auth(Resource):
     @jwt_required()
     @ns.doc(security='bearerAuth')
     def get(self):
+        abort(500)
         return current_user.to_dict(only=('name','is_admin'))
     
     @ns.expect(auth_args, validate=True)
