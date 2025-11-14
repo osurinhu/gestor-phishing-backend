@@ -1,0 +1,43 @@
+[default]
+TITLE = 'Gestor Phishing'
+SECRET_KEY = 'https://www.youtube.com/watch?v=0mkW-2YKIf8'
+SERVER_NAME = "localhost:5000"
+PREFERRED_URL_SCHEME = "http"
+PROPAGATE_EXCEPTIONS = 1
+
+SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://dev:senhasecreta@127.0.0.1:3306/dev_db"
+
+BABEL_DEFAULT_LOCALE = 'pt'
+
+RESTX_ERROR_404_HELP = 0
+
+SCHEDULER_JOBSTORES = {"default" = {"type"="sqlalchemy","url"="@format {this.SQLALCHEMY_DATABASE_URI}" }}
+
+JWT_SECRET_KEY = 'https://www.youtube.com/watch?v=jUcMyAzt2Ck'
+JWT_ACCESS_TOKEN_EXPIRES = 172800
+
+ENC_KEY = 'n_-SmC01jbG9JxX_BGOqKwpRvmKDO54O3S7MTpftWiQ='
+
+SENDER_EMAIL= ''
+
+EXTENSOES = [
+    "ext.config",
+    "ext.database",
+    "ext.commands",
+    "ext.auth",
+    "ext.admin",
+    "ext.translation",
+    "ext.jobs",
+    
+    "blueprint.restapi.v1",
+    "blueprint.interact",
+    "blueprint.error_handler",
+]
+
+APIV1 = [
+    "blueprint.restapi.v1.auth",
+    "blueprint.restapi.v1.group",
+    "blueprint.restapi.v1.target",
+    "blueprint.restapi.v1.template",
+    "blueprint.restapi.v1.campaign",
+]
