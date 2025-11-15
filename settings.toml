@@ -28,6 +28,7 @@ EXTENSOES = [
     "ext.admin",
     "ext.translation",
     "ext.jobs",
+    "ext.cors",
     
     "blueprint.restapi.v1",
     "blueprint.interact",
