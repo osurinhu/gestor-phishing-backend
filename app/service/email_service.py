@@ -7,27 +7,28 @@ import smtplib
 class EmailService(BaseService):
     def __init__(self):
         super().__init__(repo=EmailRepo(),
-                         safe_fields=('id','target_id','campaign_id','interacted','interaction_date',)
+                         safe_fields=('id','target_id','campaign_id','interacted','interaction_date', 'target.name', 'target.email', 'target.person_code'),
+                         can_be_deleted=False
                          )
         
 
-    def send_mail(self,sender_email,recipient,subject,mail, smtp=None):
+    def send_mail(self,sender,recipient,subject,mail, smtp=None):
         msg = EmailMessage()
         msg.add_alternative(mail, subtype='html')
 
         msg['Subject'] = subject
-        msg['From'] = sender_email
+        msg['From'] = sender
         msg['To'] = recipient
 
         if smtp:
             smtp.send_message(msg)
             return
 
-        with Smtp as smtp:
+        with Smtp() as smtp:
             smtp.send_message(msg)
         return
         
-class SmtpO:
+class Smtp:
     def __init__(self, host='smtp.freesmtpservers.com', port=25):
         self.host = host
         self.port = port

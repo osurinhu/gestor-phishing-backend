@@ -1,7 +1,8 @@
-from flask_restx import Namespace, Resource, reqparse, abort
+from flask_restx import Namespace, Resource, reqparse, abort, inputs
 from flask_jwt_extended import jwt_required, current_user
 from flask import make_response
 from service.campaign_service import CampaignService
+from service.email_service import EmailService
 from . import StrLen, page_args, timeO, dateO, email
 
 
@@ -46,6 +47,8 @@ campaign_update_args.add_argument('title_text', type=StrLen(50), help='Title tex
 campaign_update_args.add_argument('button_text', type=StrLen(50), help='Button text of the email', location='form')
 campaign_update_args.add_argument('body_text', type=StrLen(500), help='Body text of the email', location='form')
 
+email_query_args = page_args.copy()
+email_query_args.add_argument('interacted', type=inputs.boolean, help='The interaction status of the email', location='args', default='')
 
 @ns.route('/')
 class Campaign(Resource):
@@ -79,6 +82,7 @@ class Campaign(Resource):
                 template_id=args['template_id'],
                 name=args['name'],
                 description=args['desc'],
+                sender_email=args['email'],
                 start_date=args['start_date'],
                 end_date=args['end_date'],
                 send_time=args['send_time'],
@@ -111,8 +115,8 @@ class CampaignId(Resource):
     @ns.doc(security='bearerAuth')
     def get(self, id):
         try:
-            group = CampaignService(current_user.id).get_by_id(id=id, extra_fields=('send_time','subject_text','title_text','template.name','group.name'))
-            return make_response(group, 200)
+            campaign = CampaignService(current_user.id).get_by_id(id=id, extra_fields=('send_time','subject_text','title_text','template.name','group.name'))
+            return make_response(campaign, 200)
         except PermissionError:
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
         except:
@@ -124,7 +128,7 @@ class CampaignId(Resource):
     def patch(self, id):
         args = campaign_update_args.parse_args(strict=True)
         try:
-            group = CampaignService(current_user.id).update(
+            campaign = CampaignService(current_user.id).update(
                 id=id,
                 group_id=args['group_id'],
                 template_id=args['template_id'],
@@ -138,7 +142,7 @@ class CampaignId(Resource):
                 body_text=args['body_text'],
                 button_text=args['button_text']
                 )
-            return make_response(group, 200)
+            return make_response(campaign, 200)
         except ValueError as e:
             if args[0] == 'date':
                 return abort(400, message='Validation error', error={'dates':'Start date bigger than end date'})
@@ -161,8 +165,8 @@ class CampaignId(Resource):
     @ns.doc(security='bearerAuth')
     def delete(self, id):
         try:
-            group = CampaignService(current_user.id).delete(id)
-            return make_response(group, 200)
+            campaign = CampaignService(current_user.id).delete(id)
+            return make_response(campaign, 200)
         except PermissionError as e:
             if e.args:
                 if e.args['active']:
@@ -173,3 +177,30 @@ class CampaignId(Resource):
                 return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
         except:
             return abort(500, message='Coudnt delete campaign', error='Internal Error')
+
+@ns.route('/<int:id>/email')        
+class Email(Resource):
+    
+    @jwt_required()
+    @ns.doc(security='bearerAuth')
+    @ns.expect(email_query_args)
+    def get(self, id):
+        args = email_query_args.parse_args(strict=True)
+        try:
+            if not CampaignService(current_user.id).get_by_id(id=id, fields=('id',)):
+                raise PermissionError
+
+            exact = {'campaign_id':id}
+            if args['interacted'] != '' or args['interacted'] != None:
+                exact['interacted'] = args['interacted']
+        
+            email = EmailService().get_page_filtered(
+                exact=exact,
+                page=args['page'], per_page=args['per_page'],
+                extra_fields=('-campaign_id',))
+            return make_response(email, 200)
+        except PermissionError:
+            return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
+        except:
+            return abort(500, message='Coudnt get emails', error='Internal Error')
+        

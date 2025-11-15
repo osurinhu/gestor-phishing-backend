@@ -3,13 +3,14 @@ from domain.base import BaseModel
 from typing import Iterable, Any
 
 class BaseService:
-    def __init__(self, repo: base_repository, user_id:int=None, have_ownership:bool=False, safe_fields:tuple=tuple()):
+    def __init__(self, repo: base_repository, user_id:int=None, have_ownership:bool=False, safe_fields:tuple=tuple(), can_be_deleted=True):
         if have_ownership and not user_id and user_id !=0:
             raise NotImplementedError
 
         self.repo = repo
         self.safe_fields = safe_fields
         self.have_ownership = have_ownership
+        self.can_be_deleted= can_be_deleted
         self.user_id = user_id
 
     def validate_ownership(self, model:BaseModel):
@@ -185,7 +186,9 @@ class BaseService:
             :param kwargs: Arguments passed as not exact match of an model value
             :type kwargs: str
         """
-        exact['deleted'] = False
+        if self.can_be_deleted:
+            exact['deleted'] = False
+            
         if self.have_ownership:
             exact['creator_id'] = self.user_id
         
@@ -196,6 +199,9 @@ class BaseService:
             fields += extra_fields
 
         p = self.repo.get_page_by_filter(page=page, per_page=per_page, exact=exact, like=kwargs)
+
+        #teste
+        print(p)
 
         items = []
         for item in p:

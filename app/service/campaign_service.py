@@ -2,7 +2,7 @@ from .base_service import BaseService
 
 from flask import url_for
 from repository.campaign_repository import CampaignRepo
-from datetime import datetime, date, time, timedelta, timezone
+from datetime import datetime, date, time
 from nh3 import clean
 from jinja2 import Template
 from cryptography.fernet import Fernet
@@ -24,6 +24,7 @@ class CampaignService(BaseService):
                             'template_id',
                             'name',
                             'description',
+                            'sender_email',
                             'status',
                             'start_date',
                             'end_date',
@@ -147,13 +148,13 @@ def run_campaign(campaign_id:int):
                 log_enc = cipher_suite.encrypt(str(log['id']).encode()).decode()
 
                 link = url_for('interact.interact', id=log_enc)
-                mail = template.generate(title_text=campaign.title_text,
+                mail = template.render(title_text=campaign.title_text,
                                     button_text=campaign.button_text,
                                     body_text=campaign.body_text,
                                     name=target.name,
                                     link=link)
                 
-                es.send_mail(sender=campaign.sender_email, recipient=target.email, subject=campaign.subject, mail=mail, smtp=smtp)
+                es.send_mail(sender=campaign.sender_email, recipient=target.email, subject=campaign.subject_text, mail=mail, smtp=smtp)
             
         try:
             scheduler.remove_job(f'camp_{campaign_id}_start')

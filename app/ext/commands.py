@@ -31,7 +31,7 @@ def add_admin():
     print('Admin added!')
 
 @click.argument('id', type=int)
-def run_campaing(id):
+def run_campaign(id):
     """Runs a campaign"""
     campaign_service.run_campaign(id)
 
@@ -39,16 +39,11 @@ def run_campaing(id):
 def end_campaign(id):
     """Ends a camapign"""
     campaign_service.end_campaign(id)
-    
-def test_mail():
-    service = email_service.EmailService()
-    service.send_mail(recipient='antoniodepaduarabelo767@gmail.com', subject='teste', mail='<html><body>superteste</body></html>')
 
-    
 '''
 def populate_db():
 '''
 
 def init_app(app):
-    for command in [create_db, drop_db, add_admin, enc_key, run_campaing, end_campaign, test_mail]:
+    for command in [create_db, drop_db, add_admin, enc_key, run_campaign, end_campaign]:
         app.cli.add_command(app.cli.command()(command))
