@@ -58,20 +58,6 @@ class CampaignService(BaseService):
             replace_existing=True,
             misfire_grace_time=30
         )
-
-    # def check_active_campaign(self, **kwargs)-> bool:
-    #     """Checks if theres a active campaign with kwargs parameters"""
-    #     campaigns = self.get_by_filter(**kwargs, status='a', limit=1)
-    #     if campaigns:
-    #         return True
-    #     return False
-    
-    # def check_inactive_campaign(self, **kwargs)-> bool:
-    #     """Checks if theres a active campaign with kwargs parameters"""
-    #     campaigns = self.get_by_filter(**kwargs, status='i', limit=1)
-    #     if campaigns:
-    #         return True
-    #     return False
     
     def validate_dates(self, start_date, end_date):
         if start_date >= end_date:

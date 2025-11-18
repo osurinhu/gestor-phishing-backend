@@ -3,10 +3,9 @@ from werkzeug.exceptions import NotFound
 
 blueprint = Blueprint('error_handler', __name__, )
 
-#teste
-# @blueprint.app_errorhandler(Exception)
-# def error500(error):
-# 	return make_response(jsonify(error=500, message='Internal Error'), 500)
+@blueprint.app_errorhandler(Exception)
+def error500(error):
+	return make_response(jsonify(error=500, message='Internal Error'), 500)
 
 @blueprint.app_errorhandler(NotFound)
 def error400(error):
