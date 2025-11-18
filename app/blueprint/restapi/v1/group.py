@@ -117,7 +117,7 @@ class GroupId(Resource):
         except PermissionError:
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
         except RuntimeError:
-            return abort(400, message='Group cant be deleted', error={'group':'Group has a campaign active right now'})
+            return abort(400, message='Group cant be deleted', error={'group':'This group is related to a campaign.'})
         except:
             return abort(500, message='Coudnt delete group', error='Internal Error')
         
@@ -157,8 +157,7 @@ class GroupTarget(Resource):
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
         except ValueError:
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
-        except RuntimeError:
-            return abort(400, message='Target cant be added', error={'group':'Group has a campaign active right now'})
+
         except FileExistsError as e:
             if e.args:
                 if e.args[0] == 'email':

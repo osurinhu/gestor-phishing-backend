@@ -31,7 +31,7 @@ class BaseRepo:
                 stmt = stmt.limit(limit)
             return db.session.execute(stmt).scalars().all()
         except SQLAlchemyError as error:
-            return error
+            raise error
     
     def get_page_by_filter(self, exact:dict, like:dict, page:int=1, per_page:int=20)-> Pagination:
         try:
@@ -42,7 +42,7 @@ class BaseRepo:
             pages = db.paginate(stmt, page=page, per_page=per_page, max_per_page=100)
             return pages
         except SQLAlchemyError as error:
-            return error
+            raise error
     
     def update(self, model:BaseModel, **kwargs) -> BaseModel:
         try:
