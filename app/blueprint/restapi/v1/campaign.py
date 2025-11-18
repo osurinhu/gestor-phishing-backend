@@ -191,7 +191,7 @@ class Email(Resource):
                 raise PermissionError
 
             exact = {'campaign_id':id}
-            if args['interacted'] != '' or args['interacted'] != None:
+            if args['interacted'] != '' and args['interacted'] != None:
                 exact['interacted'] = args['interacted']
         
             email = EmailService().get_page_filtered(

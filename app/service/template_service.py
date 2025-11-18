@@ -16,7 +16,7 @@ class TemplateService(BaseService):
 
 
     def clean_template_code(self, html=str):
-        html = Cleaner().clean(html)
+        html = Cleaner(url_schemes=set('{{link}}')).clean(html)
         return html
     
     def before_create(self, kwargs):

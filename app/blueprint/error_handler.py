@@ -6,7 +6,7 @@ blueprint = Blueprint('error_handler', __name__, )
 
 @blueprint.app_errorhandler(Exception)
 def error500(error):
-	return abort(500)
+	return make_response(jsonify(error=500, message='Internal Error'), 500)
 
 @blueprint.app_errorhandler(NotFound)
 def error400(error):

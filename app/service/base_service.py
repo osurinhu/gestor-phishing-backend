@@ -199,10 +199,6 @@ class BaseService:
             fields += extra_fields
 
         p = self.repo.get_page_by_filter(page=page, per_page=per_page, exact=exact, like=kwargs)
-
-        #teste
-        print(p)
-
         items = []
         for item in p:
             items.append(item.to_dict(only=fields))
