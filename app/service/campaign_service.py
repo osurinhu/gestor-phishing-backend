@@ -116,6 +116,8 @@ def end_campaign(campaign_id:int):
     with scheduler.app.app_context():
         cs = CampaignService(0)
         model = cs.repo.get_by_id(id=campaign_id)
+        if model.status != 'a':
+            raise RuntimeError('status')
         cs.repo.update(model, status='f')
         try:
             scheduler.remove_job(f'camp_{campaign_id}_end')
@@ -127,7 +129,7 @@ def run_campaign(campaign_id:int):
         cs = CampaignService(0)
         campaign = cs.repo.get_by_id(campaign_id)
         if campaign.deleted or campaign.status != 'i':
-            return
+            raise RuntimeError('status')
         cs.update(id=campaign_id, status='a')
         
         template = Template(campaign.template.code)

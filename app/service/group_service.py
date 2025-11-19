@@ -15,16 +15,6 @@ class GroupService(BaseService):
             raise RuntimeError
         return super().before_delete(model)
     
-    def get_page_filtered(self, fields = None, extra_fields = None, page = 1, per_page = 20, exact:dict=dict(), **kwargs):
-        p =  super().get_page_filtered(fields, extra_fields, page, per_page, exact, **kwargs)
-        cs = campaign_service.CampaignService(self.user_id)
-        for item in p['items']:
-            deletable = True
-            if cs.get_by_filter(group_id=item['id'], limit=1):
-                deletable = False
-            item['can_be_deleted'] = deletable
-        return p
-    
     def get_by_id(self, id, fields = None, extra_fields = None, show_deleted = False):
         item = super().get_by_id(id, fields, extra_fields, show_deleted)
         if item:

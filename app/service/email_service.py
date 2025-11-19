@@ -9,8 +9,7 @@ class EmailService(BaseService):
         super().__init__(repo=EmailRepo(),
                          safe_fields=('id','target_id','campaign_id','interacted','interaction_date', 'target.name', 'target.email', 'target.person_code'),
                          can_be_deleted=False
-                         )
-        
+                         )  
 
     def send_mail(self,sender,recipient,subject,mail, smtp=None):
         msg = EmailMessage()

@@ -33,12 +33,23 @@ def add_admin():
 @click.argument('id', type=int)
 def run_campaign(id):
     """Runs a campaign"""
-    campaign_service.run_campaign(id)
+    try:
+        campaign_service.run_campaign(id)
+    except RuntimeError as e:
+        if e.args:
+            if e.args[0] == 'status':
+                print('Campanha não pode ser executada. Talvez ela não esteja com o status "i"')
+
 
 @click.argument('id', type=int)
 def end_campaign(id):
     """Ends a camapign"""
-    campaign_service.end_campaign(id)
+    try:
+        campaign_service.end_campaign(id)
+    except RuntimeError as e:
+        if e.args:
+            if e.args[0] == 'status':
+                print('Campanha não pode ser encerrada. Talvez ela não esteja ativa!')
 
 '''
 def populate_db():

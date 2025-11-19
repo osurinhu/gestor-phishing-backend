@@ -76,6 +76,16 @@ flask run
 flask drop-db
 ```
 
+- Rodar campanha
+```
+flask run-campaign <id da campanha>
+```
+
+- Encerrar campanha
+```
+flask end-campaign <id da campanha>
+```
+
 ## Informações importantes
 
 ### Conta de admin

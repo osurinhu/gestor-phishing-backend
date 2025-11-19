@@ -144,15 +144,16 @@ class CampaignId(Resource):
                 )
             return make_response(campaign, 200)
         except ValueError as e:
-            if args[0] == 'date':
-                return abort(400, message='Validation error', error={'dates':'Start date bigger than end date'})
-            elif args[0] == 'group':
-                return abort(400, message='Validation error', error={'group':'Referenced id element not found'})
-            elif args[0] == 'template':
-                return abort(400, message='Validation error', error={'template':'Referenced id element not found'})
-        except PermissionError as e:
             if e.args:
-                if e.args['active']:
+                if e.args[0] == 'date':
+                    return abort(400, message='Validation error', error={'dates':'Start date bigger than end date'})
+                elif e.args[0] == 'group':
+                    return abort(400, message='Validation error', error={'group':'Referenced id element not found'})
+                elif e.args[0] == 'template':
+                    return abort(400, message='Validation error', error={'template':'Referenced id element not found'})
+        except PermissionError as e:
+            if e.args[0]:
+                if e.args[0] == 'active':
                     return abort(423, message='Campaign is unavailable, cant perform changes')
                 else:
                     abort(423)
@@ -169,7 +170,7 @@ class CampaignId(Resource):
             return make_response(campaign, 200)
         except PermissionError as e:
             if e.args:
-                if e.args['active']:
+                if e.args[0] == 'active':
                     return abort(423, message='Campaign is unavailable, cant perform changes')
                 else:
                     abort(423)

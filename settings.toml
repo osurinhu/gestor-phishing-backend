@@ -18,8 +18,6 @@ JWT_ACCESS_TOKEN_EXPIRES = 172800
 
 ENC_KEY = 'n_-SmC01jbG9JxX_BGOqKwpRvmKDO54O3S7MTpftWiQ='
 
-SENDER_EMAIL= ''
-
 EXTENSOES = [
     "ext.config",
     "ext.database",

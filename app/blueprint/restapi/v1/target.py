@@ -40,10 +40,11 @@ class TargetId(Resource):
         except PermissionError:
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
         except FileExistsError as e:
-            if e.args['email']:
-                return abort(400, message='Target cant be updated', error={'Email already in use in that group'})
-            if e.args['cod']:
-                return abort(400, message='Target cant be updated', error={'Person code already in use in that group'})
+            if e.args:
+                if e.args[0] == 'email':
+                    return abort(400, message='Target cant be updated', error={'Email already in use in that group'})
+                if e.args[0] == 'cod':
+                    return abort(400, message='Target cant be updated', error={'Person code already in use in that group'})
             
         except:
             return abort(500, message='Coudnt update target', error='Internal Error')
