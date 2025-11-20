@@ -115,10 +115,12 @@ class CampaignService(BaseService):
 def end_campaign(campaign_id:int):
     with scheduler.app.app_context():
         cs = CampaignService(0)
-        model = cs.repo.get_by_id(id=campaign_id)
-        if model.status != 'a':
+        campaign = cs.repo.get_by_id(id=campaign_id)
+        if not campaign:
+            raise ValueError('id')
+        if campaign.status != 'a':
             raise RuntimeError('status')
-        cs.repo.update(model, status='f')
+        cs.repo.update(campaign, status='f')
         try:
             scheduler.remove_job(f'camp_{campaign_id}_end')
         except:
@@ -128,6 +130,8 @@ def run_campaign(campaign_id:int):
     with scheduler.app.app_context():
         cs = CampaignService(0)
         campaign = cs.repo.get_by_id(campaign_id)
+        if not campaign:
+            raise ValueError('id')
         if campaign.deleted or campaign.status != 'i':
             raise RuntimeError('status')
         cs.update(id=campaign_id, status='a')

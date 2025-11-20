@@ -87,6 +87,8 @@ class GroupId(Resource):
             group = GroupService(current_user.id).get_by_id(id=id)
             if not group:
                 raise PermissionError
+            if not group:
+                raise PermissionError
             return make_response(group, 200)
         except PermissionError:
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})

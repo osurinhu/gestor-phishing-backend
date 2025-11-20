@@ -116,6 +116,8 @@ class CampaignId(Resource):
     def get(self, id):
         try:
             campaign = CampaignService(current_user.id).get_by_id(id=id, extra_fields=('send_time','subject_text','title_text','template.name','group.name'))
+            if not campaign:
+                raise PermissionError
             return make_response(campaign, 200)
         except PermissionError:
             return abort(404, message='Not Found', error={'id': 'Referenced id element not found'})
