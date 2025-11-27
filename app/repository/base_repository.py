@@ -38,7 +38,7 @@ class BaseRepo:
             stmt = db.select(self.model).filter_by(**exact)
             for key, value in like.items():
                 if value != None or value != '':
-                    stmt = stmt.where(getattr(self.model, key).like("%"+value+"%"))
+                    stmt = stmt.where(getattr(self.model, key).like("%"+str(value)+"%"))
             pages = db.paginate(stmt, page=page, per_page=per_page, max_per_page=100)
             return pages
         except SQLAlchemyError as error:
