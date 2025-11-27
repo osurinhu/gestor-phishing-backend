@@ -28,7 +28,7 @@ api = Api(
     authorizations=authorizations)
 
 class StrLen(object):
-    def __init__(self, lenght:int, min:int=5):
+    def __init__(self, lenght:int, min:int=1):
          self.lenght = lenght
          self.min = min
     def __call__(self, value):
