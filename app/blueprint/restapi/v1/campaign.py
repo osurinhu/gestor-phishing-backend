@@ -25,7 +25,7 @@ campaign_creation_args.add_argument('body_text', type=StrLen(500), help='Body te
 
 campaign_query_args = page_args.copy()
 campaign_query_args.add_argument('id', type=str, help='The id of the campaign', location='args', default='')
-campaign_query_args.add_argument('name', type=StrLen(50), help='Name of the campaign', location='args', default='')
+campaign_query_args.add_argument('name', type=str, help='Name of the campaign', location='args', default='')
 campaign_query_args.add_argument('group_id', type=int, help='The target group of the campaign', location='args', default='')
 campaign_query_args.add_argument('template_id', type=int, help='The template of the campaign', location='args', default='')
 campaign_query_args.add_argument('start_date', type=dateO, help='Start date of the campaign (YYYY-MM-DD)', location='args', default='')
