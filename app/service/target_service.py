@@ -7,7 +7,7 @@ from service import email_service
 class TargetService(BaseService):
     def __init__(self, user_id:int):
         super().__init__(repo=TargetRepo(),
-                         safe_fields=('id','creator_id','name','email','group_id',),
+                         safe_fields=('id','creator_id','name','email','group_id','person_code'),
                          have_ownership=True,
                          user_id=user_id)
 
