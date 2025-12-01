@@ -28,19 +28,18 @@ class EmailService(BaseService):
         return
         
 class Smtp:
-    def __init__(self, host='smtp.freesmtpservers.com', port=25):
+    def __init__(self, host='localhost', port=1025):
         self.host = host
         self.port = port
         self.server = None
 
     def __enter__(self):
         self.server = smtplib.SMTP(self.host, self.port)
-        self.server.ehlo()  
         return self.server
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.server:
             try:
                 self.server.quit()
-            except Exception:
+            except:
                 self.server.close()
