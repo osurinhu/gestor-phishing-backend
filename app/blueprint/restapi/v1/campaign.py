@@ -115,7 +115,7 @@ class CampaignId(Resource):
     @ns.doc(security='bearerAuth')
     def get(self, id):
         try:
-            campaign = CampaignService(current_user.id).get_by_id(id=id, extra_fields=('send_time','subject_text','title_text','template.name','group.name'))
+            campaign = CampaignService(current_user.id).get_by_id(id=id, extra_fields=('send_time','subject_text','title_text','button_text','body_text','template.name','group.name'))
             if not campaign:
                 raise PermissionError
             return make_response(campaign, 200)
@@ -207,3 +207,29 @@ class Email(Resource):
         except:
             return abort(500, message='Coudnt get emails', error='Internal Error')
         
+@ns.route('/next_to_finish')
+class CampaignEndining(Resource):
+    @jwt_required()
+    @ns.doc(security='bearerAuth')
+    def get(self):
+        try:
+            campaign = CampaignService(current_user.id).get_ending_soon(extra_fields=('send_time','template.name','group.name'))
+            if not campaign:
+                raise PermissionError
+            return make_response(campaign, 200)
+        except PermissionError:
+            return abort(404, message='Not Found', error={'Campaign': 'Does not exist an campaing close to the end'})
+
+
+@ns.route('/last_created')
+class LastCreated(Resource):
+    @jwt_required()
+    @ns.doc(security='bearerAuth')
+    def get(self):
+        try:
+            campaign = CampaignService(current_user.id).get_last_created(extra_fields=('send_time','template.name','group.name'))
+            if not campaign:
+                raise PermissionError
+            return make_response(campaign, 200)
+        except PermissionError:
+            return abort(404, message='Not Found', error={'Campaign': 'Does not exist any campaing'})

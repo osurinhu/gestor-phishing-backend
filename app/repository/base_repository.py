@@ -39,11 +39,18 @@ class BaseRepo:
             for key, value in like.items():
                 if value != None or value != '':
                     stmt = stmt.where(getattr(self.model, key).like("%"+str(value)+"%"))
-            pages = db.paginate(stmt, page=page, per_page=per_page, max_per_page=100)
+            pages = db.paginate(stmt, page=page, per_page=per_page)
             return pages
         except SQLAlchemyError as error:
             raise error
-    
+        
+    def get_last_created(self, exact:dict) -> BaseModel:
+        try:
+            stmt = db.select(self.model).filter_by(**exact).order_by(self.model.created_at).limit(1)
+            return db.session.execute(stmt).scalar_one_or_none()
+        except SQLAlchemyError as error:
+            raise error
+        
     def update(self, model:BaseModel, **kwargs) -> BaseModel:
         try:
             for key, value in kwargs.items(): 

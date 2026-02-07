@@ -31,7 +31,19 @@ class CampaignService(BaseService):
                             'send_time'),
                          have_ownership=True,
                          user_id=user_id)
+
+    def get_ending_soon(self, fields:tuple=None, extra_fields:tuple=None) -> dict:
+        if not fields:
+            fields=self.safe_fields
+        if extra_fields:
+            fields += extra_fields
         
+        campaign = self.repo.get_ending_soon(creator_id = self.user_id)
+        if campaign:
+            return campaign.to_dict(only=fields)
+        return None
+
+
     def set_jobs(self, id, start_date, send_time, end_date):
         start_dt = datetime.combine(
             datetime.strptime(start_date, '%Y-%m-%d').date(),

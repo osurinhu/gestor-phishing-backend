@@ -115,7 +115,7 @@ class BaseService:
     def before_put(self, new_entry:dict, old_model:BaseModel):
         pass
 
-    def put(self, id, commit = True, **kwargs):
+    def put(self, id:int, commit = True, **kwargs):
         old_model = self.repo.get_by_id(id)
         new_entry =  self.create(**kwargs, commit=False)
         self.before_put(new_entry, old_model)
@@ -210,6 +210,25 @@ class BaseService:
             'has_prev': p.has_prev,
             'has_next': p.has_next,
         }
+
+    def get_last_created(self, fields:tuple=None, extra_fields:tuple=None, exact=dict()):
+        if self.can_be_deleted:
+            exact['deleted'] = False
+            
+        if self.have_ownership:
+            exact['creator_id'] = self.user_id
+        
+        if not fields:
+            fields=self.safe_fields
+
+        if extra_fields:
+            fields += extra_fields
+
+        value = self.repo.get_last_created(exact=exact)
+        if value:
+            return value.to_dict(only=fields)
+        return None
+
 
     def exists(self, id)-> bool:
         if self.get_by_id(id=id):
